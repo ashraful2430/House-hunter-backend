@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -29,6 +29,36 @@ async function run() {
 
     app.get("/rented", async (req, res) => {
       const result = await rentedHouseCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.patch("/rented/:id", async (req, res) => {
+      const item = req.body;
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          houseName: item.houseName,
+          address: item.address,
+          bathrooms: item.bathrooms,
+          bedroom: item.bedroom,
+          city: item.city,
+          date: item.date,
+          image: item.image,
+          number: item.number,
+          rent: item.rent,
+          size: item.size,
+          details: item.details,
+        },
+      };
+      const result = await rentedHouseCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+
+    app.delete("/rented/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await rentedHouseCollection.deleteOne(query);
       res.send(result);
     });
 
