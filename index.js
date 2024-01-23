@@ -6,7 +6,12 @@ require("dotenv").config();
 const port = process.env.PORT || 5000;
 
 // middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:5174"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_ADMIN}:${process.env.DB_PASSWORD}@cluster0.cy95lx0.mongodb.net/?retryWrites=true&w=majority`;
@@ -56,7 +61,13 @@ async function run() {
     //   rented house api
 
     app.get("/rented", async (req, res) => {
-      const result = await rentedHouseCollection.find().toArray();
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+      const result = await rentedHouseCollection
+        .find()
+        .skip(page * size)
+        .limit(size)
+        .toArray();
       res.send(result);
     });
 
@@ -67,27 +78,44 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/houseCount", async (req, res) => {
+      const count = await rentedHouseCollection.estimatedDocumentCount();
+      res.send({ count });
+    });
+
     app.patch("/rented/:id", async (req, res) => {
       const item = req.body;
       const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const updatedDoc = {
-        $set: {
-          houseName: item.houseName,
-          address: item.address,
-          bathrooms: item.bathrooms,
-          bedroom: item.bedroom,
-          city: item.city,
-          date: item.date,
-          image: item.image,
-          number: item.number,
-          rent: item.rent,
-          size: item.size,
-          details: item.details,
-        },
-      };
-      const result = await rentedHouseCollection.updateOne(filter, updatedDoc);
-      res.send(result);
+      console.log("Received id:", id);
+
+      try {
+        const objectId = new ObjectId(id);
+        const filter = { _id: objectId };
+        const updatedDoc = {
+          $set: {
+            houseName: item.houseName,
+            address: item.address,
+            bathrooms: item.bathrooms,
+            bedroom: item.bedroom,
+            city: item.city,
+            date: item.date,
+            image: item.image,
+            number: item.number,
+            rent: item.rent,
+            size: item.size,
+            details: item.details,
+          },
+        };
+        const result = await rentedHouseCollection.updateOne(
+          filter,
+          updatedDoc
+        );
+        res.send(result);
+      } catch (error) {
+        console.error("Error creating ObjectId:", error);
+        res.status(400).send("Invalid ObjectId format");
+        return;
+      }
     });
 
     app.delete("/rented/:id", async (req, res) => {
