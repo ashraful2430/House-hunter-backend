@@ -31,7 +31,7 @@ async function run() {
     app.get("/booked/:email", async (req, res) => {
       const query = { bookedEmail: req.params.email };
       const result = await bookedHouseCollection.find(query).toArray();
-      res.send;
+      res.send(result);
     });
 
     app.get("/booked/count/:email", async (req, res) => {
