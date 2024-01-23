@@ -24,6 +24,27 @@ async function run() {
   try {
     const userCollection = client.db("HouseDB").collection("users");
     const rentedHouseCollection = client.db("HouseDB").collection("rented");
+    const bookedHouseCollection = client.db("HouseDB").collection("booked");
+
+    // booked house api
+
+    app.get("/booked/:email", async (req, res) => {
+      const query = { bookedEmail: req.params.email };
+      const result = await bookedHouseCollection.find(query).toArray();
+      res.send;
+    });
+
+    app.get("/booked/count/:email", async (req, res) => {
+      const query = { bookedEmail: req.params.email };
+      const count = await bookedHouseCollection.countDocuments(query);
+      res.send({ count });
+    });
+
+    app.post("/booked", async (req, res) => {
+      const info = req.body;
+      const result = await bookedHouseCollection.insertOne(info);
+      res.send(result);
+    });
 
     //   rented house api
 
