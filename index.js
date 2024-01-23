@@ -32,6 +32,12 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/rented/:email", async (req, res) => {
+      const query = { ownerEmail: req.params.email };
+      const result = await rentedHouseCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.post("/rented", async (req, res) => {
       const info = req.body;
       const result = await rentedHouseCollection.insertOne(info);
