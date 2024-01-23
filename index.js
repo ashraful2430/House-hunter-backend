@@ -26,6 +26,12 @@ async function run() {
     const rentedHouseCollection = client.db("HouseDB").collection("rented");
 
     //   rented house api
+
+    app.get("/rented", async (req, res) => {
+      const result = await rentedHouseCollection.find().toArray();
+      res.send(result);
+    });
+
     app.post("/rented", async (req, res) => {
       const info = req.body;
       const result = await rentedHouseCollection.insertOne(info);
