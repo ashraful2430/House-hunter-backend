@@ -23,6 +23,14 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const userCollection = client.db("HouseDB").collection("users");
+    const rentedHouseCollection = client.db("HouseDB").collection("rented");
+
+    //   rented house api
+    app.post("/rented", async (req, res) => {
+      const info = req.body;
+      const result = await rentedHouseCollection.insertOne(info);
+      res.send(result);
+    });
 
     //   user related api
 
