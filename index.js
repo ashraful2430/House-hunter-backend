@@ -40,6 +40,13 @@ async function run() {
       res.send({ count });
     });
 
+    app.delete("/booked/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await bookedHouseCollection.deleteOne(query);
+      res.send(result);
+    });
+
     app.post("/booked", async (req, res) => {
       const info = req.body;
       const result = await bookedHouseCollection.insertOne(info);
