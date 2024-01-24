@@ -39,6 +39,11 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/booked", async (req, res) => {
+      const result = await bookedHouseCollection.find().toArray();
+      res.send(result);
+    });
+
     app.get("/booked/count/:email", async (req, res) => {
       const query = { bookedEmail: req.params.email };
       const count = await bookedHouseCollection.countDocuments(query);
@@ -63,8 +68,11 @@ async function run() {
     app.get("/rented", async (req, res) => {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
+      const filter = req.query;
+
+      const query = { city: { $regex: filter.search, $options: "i" } };
       const result = await rentedHouseCollection
-        .find()
+        .find(query)
         .skip(page * size)
         .limit(size)
         .toArray();
@@ -125,9 +133,11 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/rented/:email", async (req, res) => {
-      const query = { ownerEmail: req.params.email };
+    app.get("/rented/owner/:email", async (req, res) => {
+      const query = { email: req.params.email };
+      console.log(query, "135");
       const result = await rentedHouseCollection.find(query).toArray();
+      console.log(result);
       res.send(result);
     });
 
